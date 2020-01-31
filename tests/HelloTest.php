@@ -10,7 +10,7 @@ class HelloTest extends SlimBaseTest
     public function testHello()
     {
         /** @var Response $response */
-        $response = $this->runApp('GET', '/hello/Albus');
+        $response = $this->runApp('GET', '/greeting/Albus');
 
         $this->assertEquals(200, $response->getStatusCode());
 

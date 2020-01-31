@@ -2,3 +2,4 @@
 /config/cache/
 /.ssh
 .env
+.phpunit.result.cache
