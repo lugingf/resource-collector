@@ -1,0 +1,14 @@
+FROM registry.ci.tutu.ru/openshift/php-unittests:latest
+
+WORKDIR /usr/src/app
+COPY . /usr/src/app
+
+# чтобы запустилось локально, нужно изменить (cp id_rsa ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa || true)
+# и закинуть в корень проекта свой id_rsa (не забыть убрать потом)
+RUN mkdir -p ~/.ssh && (cp .ssh/id_rsa ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa || true) && \
+        git config --global core.sshCommand "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" && \
+        composer --no-interaction --no-ansi --optimize-autoloader install && \
+        rm -fr .ssh ~/.ssh
+
+RUN chmod -R 770 /usr/src/app && \
+    phpunit -c phpunit.xml

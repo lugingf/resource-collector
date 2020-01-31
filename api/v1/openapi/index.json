@@ -1,0 +1,82 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Tutu Template API",
+    "description": "Пример REST API сервиса на Slim",
+    "version": "1.0"
+  },
+  "paths": {
+    "/greeting/{name}": {
+      "get": {
+        "summary": "Здравствуйте",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "name",
+            "description": "Ваше имя",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "Minerva"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "example": "Hello, Minerva"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "code": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+    },
+    "responses": {
+    }
+  }
+}
