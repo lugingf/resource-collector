@@ -19,13 +19,13 @@ use RM\OpenApiMiddleware\OpenApiEditorMiddleware;
 use RM\OpenApiMiddleware\OpenApiMiddleware;
 use RMS\ResourceCollector\Controller\KubernetesController;
 use RMS\ResourceCollector\Controller\OpenApiController;
+use RMS\ResourceCollector\Controller\ResourceCollectingController;
 use RMS\ResourceCollector\Middleware\OpenApiUriFormatter;
 use RMS\ResourceCollector\Middleware\JsonFormatter;
 use RMS\ResourceCollector\Middleware\SentryMiddleware;
+use RMS\ResourceCollector\ResourceCollector;
 use Tutu\MonologExtensions\LogstashJsonFormatter;
 use Tutu\MonologExtensions\RequestMetadataProcessor;
-use TutuRu\Config\ConfigInterface;
-use TutuRu\Config\JsonConfig\JsonConfig;
 use Tutu\OpenTracingMiddleware\OpenTracingMiddleware;
 use TutuRu\HttpRequestMetadata\RequestMetadataMiddleware;
 use TutuRu\Metrics\StatsdExporterClientInterface;
@@ -55,12 +55,6 @@ $definitions = [
     },
 
     CacheInterface::class  => DI\create(ApcuCachePool::class),
-    ConfigInterface::class => function (ContainerInterface $container) {
-        $config = new \TutuRu\Config\ConfigContainer();
-        $config->setConfig('business', new JsonConfig(__DIR__ . '/env/business.json'), 2);
-        $config->setConfig('service', new JsonConfig(__DIR__ . '/env/service.json'), 3);
-        return $config;
-    },
 
     RequestMetadata::class => DI\autowire(),
     Specification::class   => DI\autowire()
@@ -139,6 +133,8 @@ $definitions = [
     RequestLogMiddleware::class     => DI\autowire(),
     SlowRequestLogMiddleware::class => DI\autowire()
         ->constructorParameter('maxAllowedTimeSec', floatval(getenv('DEBUG_SLOW_REQUEST_TIME_MS') ?? 10)),
+    ResourceCollector::class => DI\autowire(),
+    ResourceCollectingController::class => DI\autowire(),
 ];
 
 return $definitions;

@@ -10,7 +10,10 @@ try {
     $app = new Application();
     $container = $app->getContainer();
 
-    // TODO: other bootstraps
+    exec('vendor/bin/phinx migrate -e production -c '. __DIR__ . '/../phinx.php', $output, $returnCode);
+    if ($returnCode !== 0) {
+        throw new \Exception('migration was failed: ' . implode("\n", $output));
+    }
 } catch (\Throwable $e) {
     criticalException($e);
     exit(1);

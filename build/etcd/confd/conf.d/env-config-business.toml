@@ -1,7 +1,0 @@
-[template]
-src = "env-config-business.tmpl"
-dest = "/tmp/env-config-business.tmp"
-keys = [
-  "/config-tutu/ResourceCollector/business",
-]
-reload_cmd = "etcd-php etcd:export --server=http://${APP_ETCD} /config-tutu/ResourceCollector/business -o ${APP_ROOT}/config/env/business.json"

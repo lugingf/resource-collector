@@ -1,7 +1,0 @@
-[template]
-src = "env-config-service.tmpl"
-dest = "/tmp/env-config-service.tmp"
-keys = [
-  "/config-tutu/ResourceCollector/service",
-]
-reload_cmd = "etcd-php etcd:export --server=http://${APP_ETCD} /config-tutu/ResourceCollector/service -o ${APP_ROOT}/config/env/service.json"

@@ -22,12 +22,6 @@ envsubst < ${APP_ROOT}/build/php/opcache.ini > ${PHP_CONF_DIR}/conf.d/opcache.in
 
 envsubst < ${APP_ROOT}/build/php/php.app.ini > ${PHP_CONF_DIR}/conf.d/99-app.ini
 
-ETCD_INIT=${APP_ROOT}/build/etcd/etcd_init.sh
-if [[ -f ${ETCD_INIT} ]]; then
-    echo "---> Init etcd ..."
-    bash ${ETCD_INIT}
-fi
-
 BOOTSTRAP=${APP_ROOT}/bin/bootstrap.sh
 if [[ -f ${BOOTSTRAP} ]]; then
     echo "---> Run application bootstrap (bin/bootstrap.sh) ..."

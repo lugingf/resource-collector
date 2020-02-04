@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RMS\ResourceCollector;
 
 use DI\ContainerBuilder;
+use Illuminate\Database\Capsule\Manager;
 use Middlewares\ErrorHandler;
 use Middlewares\Utils\HttpErrorException;
 use Middlewares\TrailingSlash;
@@ -14,6 +15,7 @@ use RM\OpenApiMiddleware\OpenApiEditorMiddleware;
 use RM\OpenApiMiddleware\OpenApiMiddleware;
 use RMS\ResourceCollector\Controller\KubernetesController;
 use RMS\ResourceCollector\Controller\OpenApiController;
+use RMS\ResourceCollector\Controller\ResourceCollectingController;
 use RMS\ResourceCollector\Middleware\SentryMiddleware;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -25,6 +27,12 @@ use TutuRu\MetricsMiddleware\StatsdExporterSaveMiddleware;
 
 class Application extends \DI\Bridge\Slim\App
 {
+    public function __construct()
+    {
+        parent::__construct();
+        $this->initDb();
+    }
+
     protected function isDebug()
     {
         return null;
@@ -51,6 +59,8 @@ class Application extends \DI\Bridge\Slim\App
         );
 
         $this->get('/openapi.json', OpenApiController::class . ':getOpenApiJson');
+
+        $this->get("/get_resources", ResourceCollectingController::class . ':collect');
 
         $greetingGroup = $this->group(
             '/greeting',
@@ -102,5 +112,26 @@ class Application extends \DI\Bridge\Slim\App
         $routeGroup->add($this->getContainer()->get(OpenApiMiddleware::class));
         $routeGroup->add($this->getContainer()->get(OpenApiEditorMiddleware::class));
         $routeGroup->add($this->getContainer()->get(OpenTracingMiddleware::class));
+    }
+
+    private function initDb(): void
+    {
+        $capsule = new Manager();
+
+        $serviceName = 'resourcecollector';
+        $capsule->addConnection(
+            [
+                'driver'    => 'mysql',
+                'host'      => getenv('MYSQL_HOST'),
+                'port'      => getenv('MYSQL_PORT'),
+                'database'  => $serviceName,
+                'username'  => $serviceName,
+                'password'  => getenv('MYSQL_PASSWORD'),
+                'charset'   => 'utf8',
+                'collation' => 'utf8_unicode_ci',
+                'prefix'    => '',
+            ]
+        );
+        $capsule->bootEloquent();
     }
 }
