@@ -81,7 +81,7 @@ class Host2TagLinker
         return is_null($tag) ? null : $tag->getValue();
     }
 
-    public function getHostLinksByTagId(string $tagId): array
+    public function getHostLinksByTagId(int $tagId): array
     {
         $links = DB::select(
             'SELECT * FROM ' . $this->getTable() . ' WHERE tag_id = ?',
@@ -90,7 +90,7 @@ class Host2TagLinker
         return $links;
     }
 
-    public function replaceLink(string $oldLinkId, string $hostName, TagRule $rule, Tag $tag): void
+    public function replaceLink(int $oldLinkId, string $hostName, TagRule $rule, Tag $tag): void
     {
         DB::delete('DELETE FROM ' . $this->getTable() . ' WHERE id = ?', [$oldLinkId]);
         $this->linkHost($hostName, $rule, $tag);
