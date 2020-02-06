@@ -30,6 +30,7 @@ use RMS\ResourceCollector\Middleware\OpenApiUriFormatter;
 use RMS\ResourceCollector\Middleware\JsonFormatter;
 use RMS\ResourceCollector\Middleware\SentryMiddleware;
 use RMS\ResourceCollector\ResourceCollector;
+use RMS\ResourceCollector\TagRules\TagUpdater;
 use Tutu\MonologExtensions\LogstashJsonFormatter;
 use Tutu\MonologExtensions\RequestMetadataProcessor;
 use Tutu\OpenTracingMiddleware\OpenTracingMiddleware;
@@ -148,6 +149,7 @@ $definitions = [
     TagNameSuggestController::class => DI\autowire(),
     TagValueSuggestController::class => DI\autowire(),
     TagRuleNameSuggestController::class => DI\autowire(),
+    TagUpdater::class => DI\autowire(),
 ];
 
 return $definitions;

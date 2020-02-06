@@ -1,22 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace RMS\ResourceCollector\TagRules\Strategies;
+namespace RMS\ResourceCollector\TagRules\Strategy;
 
 use RMS\ResourceCollector\Model\Unit;
 
-class RegexStrategy
+class Regex extends AbstractStrategy
 {
-    /**
-     * @var string
-     */
-    protected $ruleBody;
-
-    public function __construct(string $ruleBody)
-    {
-        $this->ruleBody = $ruleBody;
-    }
-
     public function getHosts(): array
     {
         $result = [];

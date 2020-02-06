@@ -66,6 +66,7 @@ class Application extends \DI\Bridge\Slim\App
 
         $this->get('/openapi.json', OpenApiController::class . ':getOpenApiJson');
 
+        // @todo в группу, под мидлвары и написать спеку
         $this->get("/resources", ResourceCollectingController::class . ':collect');
         $this->get("/rule", GetRuleController::class . ':process');
         $this->post("/rule", RuleSaveAndLinkController::class . ":process");

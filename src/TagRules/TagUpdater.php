@@ -2,13 +2,10 @@
 declare(strict_types=1);
 
 
-namespace RMS\ResourceCollector\TagRules\CronHandlers;
+namespace RMS\ResourceCollector\TagRules;
 
 use Illuminate\Database\Capsule\Manager as DB;
 use Psr\Log\LoggerInterface;
-use RMS\ResourceCollector\TagRules\Host2TagLinker;
-use RMS\ResourceCollector\TagRules\Rule2TagLinker;
-use RMS\ResourceCollector\TagRules\RuleStrategy;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
 
@@ -60,8 +57,6 @@ class TagUpdater
                 $ruleStrategy = RuleStrategy::getStrategy($rule->getType(), $rule->getBody());
                 $hosts = $ruleStrategy->getHosts();
                 $this->logger->info(
-                    'hostinfo',
-                    'tag_updater',
                     "Applying " . $rule->getName() . " (priority ". $rule->getPriority() . ") on " . count($hosts) . " hosts"
                 );
                 /* @var Tag $tag */
@@ -70,8 +65,6 @@ class TagUpdater
                 $linker->setTable(static::TEMP_TABLE);
                 $skippedHosts = $linker->linkHosts($hosts, $rule, $tag);
                 $this->logger->info(
-                    'hostinfo',
-                    'tag_updater',
                     "Finished apply " . $rule->getName() . ". " . count($skippedHosts) . " skipped: \n"
                     . implode("\n", array_map(function ($a){return implode(" ", $a);}, $skippedHosts))
                 );
@@ -79,7 +72,7 @@ class TagUpdater
             $this->replaceTables();
         } catch (\Throwable $e) {
             $this->raven->captureException($e);
-            $this->logger->info('hostinfo', 'tag_updater', "Exception caught:\n" . $e);
+            $this->logger->error("Exception caught:\n" . $e);
             return;
         }
     }
@@ -90,7 +83,7 @@ class TagUpdater
             "RENAME TABLE "
             . Host2TagLinker::TABLE . " TO " . static::TEMP_TABLE_2 . ", "
             . static::TEMP_TABLE . " TO " . Host2TagLinker::TABLE . ";"
-            . "DROP TABLE " . static::TEMP_TABLE_2 . "; "
         );
+        DB::statement("DROP TABLE " . static::TEMP_TABLE_2 . ";");
     }
 }
