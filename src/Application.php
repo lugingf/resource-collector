@@ -132,6 +132,7 @@ class Application extends \DI\Bridge\Slim\App
                 'prefix'    => '',
             ]
         );
+        $capsule->setAsGlobal();
         $capsule->bootEloquent();
     }
 }

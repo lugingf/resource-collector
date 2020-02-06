@@ -15,9 +15,14 @@ class Item extends Model
 {
     public const TABLE_NAME = 'item';
 
+    const FIELD_UNIT_NAME = "unit_name";
+    const FIELD_TYPE = "type";
+    const FIELD_AMOUNT = "amount";
+    const FIELD_PROPERTIES = "properties";
+
     protected $table = self::TABLE_NAME;
 
     public $timestamps = false;
 
-    protected $fillable = ["unit_id", "type", "amount", "properties"];
+    protected $fillable = [self::FIELD_UNIT_NAME, self::FIELD_TYPE, self::FIELD_AMOUNT, self::FIELD_PROPERTIES];
 }

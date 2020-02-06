@@ -3,8 +3,12 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector;
 
+use Illuminate\Support\Facades\DB;
 use RMS\ResourceCollector\Model\Item;
+use RMS\ResourceCollector\Model\Tag;
+use RMS\ResourceCollector\Model\TagRule;
 use RMS\ResourceCollector\Model\Unit;
+use RMS\ResourceCollector\TagRules\Rule2TagLinker;
 
 class ResourceCollector
 {
@@ -25,47 +29,78 @@ class ResourceCollector
             throw new \Exception('No resource targets registered');
         }
 
-        $resources = [];
         try {
             foreach ($sources as $sourceName => $sourceTarget) {
                 $resources = $this->dataProviderClient->getResources($sourceTarget);
+
                 // готовим bulk insert
-                $itemData = [];
+                $itemsData = [];
+                $unitsData = [];
+                $rulesData = [];
+
                 foreach ($resources['resources'] as $resource) {
-                    $unitData = (object)$resource;
+                    $unitsData[] = [
+                        'name' => $resource['name'],
+                        'type' => $resource['type'],
+                        'source' => $sourceName,
+                        'properties' => json_encode((object)$resource['properties']),
+                    ];
 
-                    /* @var $unit Unit */
-                    $unit = Unit::firstOrNew(
-                        [
-                            'name' => $unitData->name,
-                            'type' => $unitData->type
-                        ]
-                    );
-                    $unit->source = $sourceName;
-                    $unit->properties = json_encode($unitData->properties);
-                    $unit->save();
-
-                    foreach ($unitData->items as $sourceItem) {
-                        $itemData[] = [
-                            'type' => $sourceItem['type'],
-                            'unit_id' => $unit->id,
-                            'amount' => $sourceItem['amount'],
-                            'properties' => json_encode($sourceItem['properties'])
-
+                    foreach ($resource['items'] as $resourceItem) {
+                        $itemsData[] = [
+                            'type' => $resourceItem['type'],
+                            'unit_name' => $resource['name'],
+                            'amount' => $resourceItem['amount'],
+                            'properties' => json_encode((object)$resourceItem['properties'])
                         ];
                     }
-                    // Items не уникальные у нас, поэтому просто грохнем старые и заведем новые
-                    Item::where('unit_id', '=', $unit->id)->delete();
-                    $tags = $unitData->tags;
+                    Item::where('unit_name', '=', $resource['name'])->delete();
+
+                    foreach ($resource["tags"] as $tag) {
+                        $ruleName = implode("_", [$sourceName, "origin", $tag['tag'], $tag['value']]);
+
+                        $rulesData[$ruleName]['name'] = $ruleName;
+                        $rulesData[$ruleName]['type'] = "origin";
+                        $rulesData[$ruleName]['tag_name'] = $tag['tag'];
+                        $rulesData[$ruleName]['tag_value'] = $tag['value'];
+                        $rulesData[$ruleName]['hosts'][] = $resource['name'];
+                    }
                 }
-                Item::insert($itemData);
-                // @fixme
-                var_dump($sourceName);
+
+                // @todo тут надо все в одной транзакции делать
+                Unit::where('source', '=', $sourceName)->delete();
+                Unit::insertOrIgnore($unitsData);
+                Item::insert($itemsData);
+
+                $this->saveTagRules($rulesData);
             }
         } catch (\Throwable $e) {
-            // @fixme
-            var_dump('caught ' . $e);
             $this->raven->captureException($e);
+        }
+    }
+
+    private function saveTagRules(array $rulesData)
+    {
+        foreach ($rulesData as $ruleData){
+            $tag = Tag::firstOrCreate(
+                [
+                    Tag::FIELD_NAME => $ruleData['tag_name'],
+                    Tag::FIELD_VALUE => $ruleData['tag_value']
+                ]
+            );
+
+            $tagRule = TagRule::firstOrNew(
+                [
+                    TagRule::FIELD_NAME => $ruleData['name'],
+                    TagRule::FIELD_TYPE => $ruleData['type'],
+                ]
+            );
+            $tagRule->body = json_encode($ruleData['hosts']);
+            $tagRule->priority = 10;
+            $tagRule->comment = 'info from cloud data';
+            $tagRule->save();
+
+            (new Rule2TagLinker())->linkExclusively($tagRule, $tag);
         }
     }
 

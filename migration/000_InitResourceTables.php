@@ -19,15 +19,14 @@ class InitResourceTables extends AbstractMigration
             return;
         }
 
-        $table = $this->table(Unit::TABLE_NAME);
+        $table = $this->table(Unit::TABLE_NAME, ["id" => false]);
 
         $table->addColumn('source', 'string', ['null' => false])
             ->addColumn('type', 'string', ['length' => 255, 'null' => false])
             ->addColumn('name', 'string', ['length' => 255, 'null' => false])
             ->addColumn('properties', 'text')
-            ->addColumn('updated_at', 'datetime')
-            ->addColumn('created_at', 'datetime')
             ->addIndex('name', ['name' => 'ux_name', 'unique' => true])
+            ->addIndex('source', ['name' => 'ix_source'])
             ->create();
     }
 
@@ -39,11 +38,11 @@ class InitResourceTables extends AbstractMigration
 
         $table = $this->table(Item::TABLE_NAME, ["id" => false]);
 
-        $table->addColumn('unit_id', 'integer', ['null' => false])
+        $table->addColumn('unit_name', 'string', ['length' => 255, 'null' => false])
             ->addColumn('type', 'string', ['length' => 255, 'null' => false])
             ->addColumn('amount', 'string', ['length' => 255, 'null' => false])
             ->addColumn('properties', 'text')
-            ->addIndex('unit_id', ['name' => 'ix_unit'])
+            ->addIndex('unit_name', ['name' => 'ix_unit'])
             ->create();
     }
 
