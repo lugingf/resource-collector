@@ -54,7 +54,7 @@ class TagUpdater
             DB::statement("DROP TABLE IF EXISTS " . static::TEMP_TABLE);
             DB::statement("CREATE TABLE " . static::TEMP_TABLE . " LIKE " . Host2TagLinker::TABLE);
             foreach ($rules as $rule) {
-                $ruleStrategy = RuleStrategy::getStrategy($rule->getType(), $rule->getBody());
+                $ruleStrategy = RuleStrategy::get($rule->getType(), $rule->getBody());
                 $hosts = $ruleStrategy->getHosts();
                 $this->logger->info(
                     "Applying " . $rule->getName() . " (priority ". $rule->getPriority() . ") on " . count($hosts) . " hosts"

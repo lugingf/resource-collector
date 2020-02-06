@@ -15,7 +15,7 @@ class RuleStrategy
      * @return AbstractStrategy
      * @throws \Exception
      */
-    public static function getStrategy(string $type, string $ruleBody): AbstractStrategy
+    public static function get(string $type, string $ruleBody): AbstractStrategy
     {
         switch ($type) {
             case 'regex':

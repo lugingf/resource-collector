@@ -55,7 +55,7 @@ abstract class AbstractController
      */
     protected function getHostNameList(string $ruleType, string $ruleBody): array
     {
-        $rule = RuleStrategy::getStrategy($ruleType, $ruleBody);
+        $rule = RuleStrategy::get($ruleType, $ruleBody);
         $hosts = $rule->getHosts();
         return $hosts;
     }
