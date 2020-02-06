@@ -13,9 +13,15 @@ use RM\HttpRequestLogMiddleware\RequestLogMiddleware;
 use RM\HttpRequestLogMiddleware\SlowRequestLogMiddleware;
 use RM\OpenApiMiddleware\OpenApiEditorMiddleware;
 use RM\OpenApiMiddleware\OpenApiMiddleware;
+use RMS\ResourceCollector\Controller\GetRuleController;
 use RMS\ResourceCollector\Controller\KubernetesController;
 use RMS\ResourceCollector\Controller\OpenApiController;
 use RMS\ResourceCollector\Controller\ResourceCollectingController;
+use RMS\ResourceCollector\Controller\RuleSaveAndLinkController;
+use RMS\ResourceCollector\Controller\TagNameSuggestController;
+use RMS\ResourceCollector\Controller\TagRuleCheckController;
+use RMS\ResourceCollector\Controller\TagRuleNameSuggestController;
+use RMS\ResourceCollector\Controller\TagValueSuggestController;
 use RMS\ResourceCollector\Middleware\SentryMiddleware;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -60,7 +66,13 @@ class Application extends \DI\Bridge\Slim\App
 
         $this->get('/openapi.json', OpenApiController::class . ':getOpenApiJson');
 
-        $this->get("/get_resources", ResourceCollectingController::class . ':collect');
+        $this->get("/resources", ResourceCollectingController::class . ':collect');
+        $this->get("/rule", GetRuleController::class . ':process');
+        $this->post("/rule", RuleSaveAndLinkController::class . ":process");
+        $this->get("/rule_hosts", TagRuleCheckController::class . ":process");
+        $this->get("/tag_suggest", TagNameSuggestController::class . ":process");
+        $this->get("/tag_value_suggest", TagValueSuggestController::class . ":process");
+        $this->get("/rule_suggest", TagRuleNameSuggestController::class . ":process");
 
         $greetingGroup = $this->group(
             '/greeting',

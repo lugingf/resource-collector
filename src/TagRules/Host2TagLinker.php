@@ -49,11 +49,11 @@ class Host2TagLinker
         return $result;
     }
 
-    public function getHostLinkByTagId(string $hostName, int $tagId): ?array
+    public function getHostLinkByTagId(string $hostName, int $tagId): ?\stdClass
     {
         $tagsData = $this->getHostTags($hostName);
         foreach ($tagsData as $tagData) {
-            if ($tagData['tag_id'] == $tagId) {
+            if ($tagData->tag_id == $tagId) {
                 return $tagData;
             }
         }
@@ -66,7 +66,7 @@ class Host2TagLinker
         $tagsData = $this->getHostTags($hostName);
         foreach ($tagsData as $tagData) {
             /* @var Tag $tag */
-            $tag = Tag::where('id', "=", $tagData['tag_id']);
+            $tag = Tag::where('id', "=", $tagData->tag_id)->first();
             if ($tag->getName() === $tagName) {
                 return $tag;
             }
@@ -110,7 +110,7 @@ class Host2TagLinker
             $hostLinkData = $this->getHostLinkByTagId($hostName, $hostTag->getId());
             /* @var TagRule $savedRule */
             // @todo при реализации удалений правил - учесть возврат null
-            $savedRule = TagRule::where('id', "=", $hostLinkData['rule_id']);
+            $savedRule = TagRule::where('id', "=", $hostLinkData->rule_id)->first();
             $savedRulePriority = $savedRule->getPriority();
             if ($savedRulePriority >= $tagRule->getPriority()) {
                 // тег с таким именем есть, но сохранен с бОльшим приоритетом, не линкаем, сообщим об этом
@@ -126,7 +126,7 @@ class Host2TagLinker
             }
 
             // тут, очевидно, приоритет был меньший, чем сейчас - заменяем линк
-            $this->replaceLink($hostLinkData['id'], $hostName, $tagRule, $tag);
+            $this->replaceLink($hostLinkData->id, $hostName, $tagRule, $tag);
         }
         return $skippedInstances;
     }

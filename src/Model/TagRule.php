@@ -54,7 +54,7 @@ class TagRule extends Model
     public static function getRuleNameListByNamePart(string $namePart): array
     {
         $rules = [];
-        $rulesData = TagRule::where(self::FIELD_NAME, "LIKE", "%$namePart%")->group('name');
+        $rulesData = TagRule::where(self::FIELD_NAME, "LIKE", "%$namePart%")->groupBy('name')->cursor();
         foreach ($rulesData as $rule) {
             $rules[] = $rule->{self::FIELD_NAME};
         }

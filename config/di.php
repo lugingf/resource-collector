@@ -17,9 +17,15 @@ use RM\HttpRequestLogMiddleware\SlowRequestLogMiddleware;
 use RM\OpenApi\Specification;
 use RM\OpenApiMiddleware\OpenApiEditorMiddleware;
 use RM\OpenApiMiddleware\OpenApiMiddleware;
+use RMS\ResourceCollector\Controller\GetRuleController;
 use RMS\ResourceCollector\Controller\KubernetesController;
 use RMS\ResourceCollector\Controller\OpenApiController;
 use RMS\ResourceCollector\Controller\ResourceCollectingController;
+use RMS\ResourceCollector\Controller\RuleSaveAndLinkController;
+use RMS\ResourceCollector\Controller\TagNameSuggestController;
+use RMS\ResourceCollector\Controller\TagRuleCheckController;
+use RMS\ResourceCollector\Controller\TagRuleNameSuggestController;
+use RMS\ResourceCollector\Controller\TagValueSuggestController;
 use RMS\ResourceCollector\Middleware\OpenApiUriFormatter;
 use RMS\ResourceCollector\Middleware\JsonFormatter;
 use RMS\ResourceCollector\Middleware\SentryMiddleware;
@@ -133,8 +139,15 @@ $definitions = [
     RequestLogMiddleware::class     => DI\autowire(),
     SlowRequestLogMiddleware::class => DI\autowire()
         ->constructorParameter('maxAllowedTimeSec', floatval(getenv('DEBUG_SLOW_REQUEST_TIME_MS') ?? 10)),
+
     ResourceCollector::class => DI\autowire(),
     ResourceCollectingController::class => DI\autowire(),
+    GetRuleController::class => DI\autowire(),
+    RuleSaveAndLinkController::class => DI\autowire(),
+    TagRuleCheckController::class => DI\autowire(),
+    TagNameSuggestController::class => DI\autowire(),
+    TagValueSuggestController::class => DI\autowire(),
+    TagRuleNameSuggestController::class => DI\autowire(),
 ];
 
 return $definitions;

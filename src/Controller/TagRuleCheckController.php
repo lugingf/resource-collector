@@ -5,35 +5,32 @@ namespace RMS\ResourceCollector\Controller;
 
 use Psr\Log\LoggerInterface;
 use RMS\ResourceCollector\TagRules\Host2TagLinker;
-use RMS\ResourceCollector\TagRules\RuleStrategy;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
+use Slim\Http\Request;
+use Slim\Http\Response;
 
-class TagRuleCheckController
+class TagRuleCheckController extends AbstractController
 {
-    /**
-     * @var string
-     */
-    protected $ruleBody;
-    protected $ruleType;
+    private const PARAM_BODY = "ruleBody";
+    private const PARAM_TYPE = "ruleType";
+
     protected $logger;
 
-    public function __construct(LoggerInterface $logger, array $ruleData)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
-        $this->ruleBody = trim($ruleData['ruleBody']);
-        $this->ruleType = trim($ruleData['ruleType']);
     }
 
-    public function process(): array
+    public function customProcess(Request $request, Response $responce, array $args): Response
     {
-        $this->logger->info('hostinfo', 'test', 'text');
-        return $this->getInstancesList();
+        $ruleData = $this->getParameters($request);
+        return $responce->withJson($this->getInstancesList($ruleData));
     }
 
-    protected function getInstancesList(): array
+    protected function getInstancesList(array $ruleData): array
     {
-        $hosts = $this->getHostNameList();
+        $hosts = $this->getHostNameList($ruleData['ruleType'], $ruleData['ruleBody']);
         $result = [];
         foreach ($hosts as $hostName) {
             $tags = $this->getInstanceTags($hostName);
@@ -51,12 +48,12 @@ class TagRuleCheckController
         $result = [];
         $tagLinks = (new Host2TagLinker())->getHostTags($instanceName);
         foreach ($tagLinks as $link) {
-            $tagId = $link['tag_id'];
+            $tagId = $link->tag_id;
             /* @var Tag $tag */
-            $tag = Tag::where('id', "=", $tagId);
+            $tag = Tag::where('id', "=", $tagId)->first();
             /* @var TagRule $rule */
             // @todo при реализации удалений правил - учесть возврат null
-            $rule = TagRule::where('id', "=", $link['rule_id']);
+            $rule = TagRule::where('id', "=", $link->rule_id)->first();
             $result[] = [
                 'name' => $tag->getName(),
                 'value' => $tag->getValue(),
@@ -68,14 +65,8 @@ class TagRuleCheckController
         return $result;
     }
 
-    /**
-     * @return array
-     * @throws \Exception
-     */
-    protected function getHostNameList(): array
+    function getRequiredParameters(): array
     {
-        $rule = RuleStrategy::getStrategy($this->ruleType, $this->ruleBody);
-        $hosts = $rule->getHosts();
-        return $hosts;
+        return [self::PARAM_TYPE, self::PARAM_BODY];
     }
 }

@@ -5,24 +5,29 @@ namespace RMS\ResourceCollector\Controller;
 
 
 use RMS\ResourceCollector\Model\Tag;
+use Slim\Http\Request;
+use Slim\Http\Response;
 
-class TagNameSuggestController
+class TagNameSuggestController extends AbstractController
 {
-    private $tagNamePart;
+    private const PARAM_TAG_NAME_PART = "tagNamePart";
 
-    public function __construct(string $tagNamePart)
+    public function customProcess(Request $request, Response $responce, array $args): Response
     {
-        $this->tagNamePart = $tagNamePart;
-    }
-
-    public function process(): array
-    {
+        $params = $this->getParameters($request);
         $result = [];
-        $tags = Tag::getTagNameListByNamePart($this->tagNamePart);
+        $tags = Tag::getTagNameListByNamePart($params[self::PARAM_TAG_NAME_PART]);
         /* @var Tag $tag*/
         foreach ($tags as $tag) {
             $result['tagNames'][] = ['name' => $tag];
         }
-        return $result;
+        return $responce->withJson($result);
     }
+
+    function getRequiredParameters(): array
+    {
+        return [self::PARAM_TAG_NAME_PART];
+    }
+
+
 }

@@ -1,9 +1,7 @@
 <?php
 declare(strict_types=1);
 
-
 namespace RMS\ResourceCollector\TagRules;
-
 
 use Illuminate\Database\Capsule\Manager as DB;
 use RMS\ResourceCollector\Model\Tag;
@@ -35,12 +33,12 @@ class Rule2TagLinker
             'SELECT * FROM ' . self::TABLE . ' WHERE rule_id = ?',
             [$rule->getId()]
         );
-        // @fixme потенциально ошибка
-        if (!isset($result['tag_id'])) {
+        // так как линакем по одному, и возвращаем первое совпадение
+        if (!isset($result[0]) || !isset($result[0]->tag_id)){
             return null;
         }
         /* @var Tag $tag */
-        $tag = Tag::where('id', "=", $result['tag_id']);
+        $tag = Tag::where('id', "=", $result[0]->tag_id)->first();
         return $tag;
     }
 }

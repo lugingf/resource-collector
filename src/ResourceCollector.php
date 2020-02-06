@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector;
 
-use Illuminate\Support\Facades\DB;
 use RMS\ResourceCollector\Model\Item;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
@@ -12,6 +11,7 @@ use RMS\ResourceCollector\TagRules\Rule2TagLinker;
 
 class ResourceCollector
 {
+    /* @var $dataProviderClient DataProviderClient */
     private $dataProviderClient;
     private $raven;
 
@@ -34,6 +34,7 @@ class ResourceCollector
                 $resources = $this->dataProviderClient->getResources($sourceTarget);
 
                 // готовим bulk insert
+                // Если вставлять по одному - выполняется очень долго
                 $itemsData = [];
                 $unitsData = [];
                 $rulesData = [];
@@ -67,7 +68,7 @@ class ResourceCollector
                     }
                 }
 
-                // @todo тут надо все в одной транзакции делать
+                // @todo тут надо попробовать все в одной транзакции делать + item'ы удалять там же
                 Unit::where('source', '=', $sourceName)->delete();
                 Unit::insertOrIgnore($unitsData);
                 Item::insert($itemsData);
@@ -96,7 +97,7 @@ class ResourceCollector
                 ]
             );
             $tagRule->body = json_encode($ruleData['hosts']);
-            $tagRule->priority = 10;
+            $tagRule->priority = 1;
             $tagRule->comment = 'info from cloud data';
             $tagRule->save();
 

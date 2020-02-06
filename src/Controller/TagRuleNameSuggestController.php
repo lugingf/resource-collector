@@ -6,24 +6,27 @@ namespace RMS\ResourceCollector\Controller;
 
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
+use Slim\Http\Request;
+use Slim\Http\Response;
 
-class TagRuleNameSuggestController
+class TagRuleNameSuggestController extends AbstractController
 {
-    private $ruleNamePart;
+    private const PARAM_RULE_NAME_PART = 'ruleNamePart';
 
-    public function __construct(string $ruleNamePart)
+    public function customProcess(Request $request, Response $responce, array $args): Response
     {
-        $this->ruleNamePart = $ruleNamePart;
-    }
-
-    public function process(): array
-    {
+        $params = $this->getParameters($request);
         $result = [];
-        $tags = TagRule::getRuleNameListByNamePart($this->ruleNamePart);
+        $tags = TagRule::getRuleNameListByNamePart($params[self::PARAM_RULE_NAME_PART]);
         /* @var Tag $tag*/
         foreach ($tags as $tag) {
             $result['ruleNames'][] = ['name' => $tag];
         }
-        return $result;
+        return $responce->withJson($result);
+    }
+
+    function getRequiredParameters(): array
+    {
+        return [self::PARAM_RULE_NAME_PART];
     }
 }

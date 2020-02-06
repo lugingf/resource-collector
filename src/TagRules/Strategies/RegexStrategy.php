@@ -22,13 +22,13 @@ class RegexStrategy
         $result = [];
         $instances = Unit::all();
 
-            /** @var Unit $instance */
-            foreach ($instances as $instance) {
-                $instanceName = $instance->getName();
-                if (preg_match($this->getPreparedRuleBody(), $instanceName)) {
-                    $result[] = $instanceName;
-                }
+        /** @var Unit $instance */
+        foreach ($instances as $instance) {
+            $instanceName = $instance->getName();
+            if (preg_match($this->getPreparedRuleBody(), $instanceName)) {
+                $result[] = $instanceName;
             }
+        }
 
         return $result;
     }

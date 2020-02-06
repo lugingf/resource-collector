@@ -37,7 +37,7 @@ class Tag extends Model
     public static function getTagNameListByNamePart(string $namePart): array
     {
         $tags = [];
-        $tagData = Tag::where(self::FIELD_NAME, "LIKE", "%$namePart%")->group('name');
+        $tagData = Tag::where(self::FIELD_NAME, "LIKE", "%$namePart%")->groupBy('name')->cursor();
         foreach ($tagData as $data) {
             $tags[] = $data->{self::FIELD_NAME};
         }

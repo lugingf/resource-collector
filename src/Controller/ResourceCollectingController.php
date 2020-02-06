@@ -29,7 +29,8 @@ class ResourceCollectingController
      */
     public function collect(Request $request, Response $response, array $args)
     {
-        $sources =  $request->getParam("sources");
+        $params = $request->getParsedBody() ?? [];
+        $sources =  $params["sources"];
         if(!is_null($sources) && !is_array($sources)) {
             $sources = [$sources];
         }
