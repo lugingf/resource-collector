@@ -18,7 +18,7 @@ class DataProviderClient
     public function getResources(string $targetUrl)
     {
         $response = $this->sendRequest($targetUrl);
-        return \GuzzleHttp\json_decode($response, true);
+        return json_decode($response, true);
     }
 
     private function sendRequest(string $url): string

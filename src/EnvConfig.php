@@ -5,18 +5,18 @@ namespace RMS\ResourceCollector;
 
 class EnvConfig
 {
-    const RESOURCE_SOURCE_MASK = 'RESOURCE_PROVIDER_TARGET_';
+    const RESOURCE_SOURCE_PREFIX = 'RESOURCE_PROVIDER_TARGET_';
 
     public static function getValue(string $envVariableName): ?string
     {
         $configValue = getenv(strtoupper($envVariableName));
-        if (false === $configValue) {
+        if ($configValue === false) {
             return null;
         }
         return $configValue;
     }
 
-    public static function getValues(string $prefix = ''): ?array
+    public static function getValues(string $prefix = ''): array
     {
         $resultValues = [];
         foreach ($_ENV as $configKey => $configValue) {

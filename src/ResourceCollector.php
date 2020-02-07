@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector;
 
+use Psr\Log\LoggerInterface;
 use RMS\ResourceCollector\Model\Item;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
@@ -14,11 +15,13 @@ class ResourceCollector
     /* @var $dataProviderClient DataProviderClient */
     private $dataProviderClient;
     private $raven;
+    private $logger;
 
-    public function __construct(DataProviderClient $dataProviderClient, \Raven_Client $raven)
+    public function __construct(DataProviderClient $dataProviderClient, \Raven_Client $raven, LoggerInterface $logger)
     {
         $this->dataProviderClient = $dataProviderClient;
         $this->raven = $raven;
+        $this->logger = $logger;
     }
 
     public function collectResources(?array $sourceNames = null)
@@ -32,6 +35,7 @@ class ResourceCollector
         try {
             foreach ($sources as $sourceName => $sourceTarget) {
                 $resources = $this->dataProviderClient->getResources($sourceTarget);
+                // @todo вот тут можно все отправить в тарификатор, получить инфу с ценами а потом все разбирать
 
                 // готовим bulk insert
                 // Если вставлять по одному - выполняется очень долго
@@ -55,6 +59,7 @@ class ResourceCollector
                             'properties' => json_encode((object)$resourceItem['properties'])
                         ];
                     }
+
                     Item::where('unit_name', '=', $resource['name'])->delete();
 
                     foreach ($resource["tags"] as $tag) {
@@ -69,6 +74,7 @@ class ResourceCollector
                 }
 
                 // @todo тут надо попробовать все в одной транзакции делать + item'ы удалять там же
+                // Если мы сохраняем возможность обновить только по одному сурсу, то пока только так
                 Unit::where('source', '=', $sourceName)->delete();
                 Unit::insertOrIgnore($unitsData);
                 Item::insert($itemsData);
@@ -76,11 +82,12 @@ class ResourceCollector
                 $this->saveTagRules($rulesData);
             }
         } catch (\Throwable $e) {
+            $this->logger->error('Caugth: ' . $e);
             $this->raven->captureException($e);
         }
     }
 
-    private function saveTagRules(array $rulesData)
+    private function saveTagRules(array $rulesData): void
     {
         foreach ($rulesData as $ruleData){
             $tag = Tag::firstOrCreate(
@@ -113,7 +120,7 @@ class ResourceCollector
 
         $sources = [];
         foreach ($sourceNames as $sourceName) {
-             $sourceTarget = EnvConfig::getValue(EnvConfig::RESOURCE_SOURCE_MASK . strtoupper($sourceName));
+             $sourceTarget = EnvConfig::getValue(EnvConfig::RESOURCE_SOURCE_PREFIX . strtoupper($sourceName));
              if ($sourceTarget) {
                  $sources[$sourceName] = $sourceTarget;
              }
@@ -122,12 +129,12 @@ class ResourceCollector
         return $sources;
     }
 
-    private function getAllSources()
+    private function getAllSources(): array
     {
         $sources = [];
-        $configSources = EnvConfig::getValues(EnvConfig::RESOURCE_SOURCE_MASK);
+        $configSources = EnvConfig::getValues(EnvConfig::RESOURCE_SOURCE_PREFIX);
         foreach ($configSources as $sourceName => $sourceTarget) {
-            $sourceShortName = strtolower(str_replace(EnvConfig::RESOURCE_SOURCE_MASK, "", $sourceName));
+            $sourceShortName = strtolower(str_replace(EnvConfig::RESOURCE_SOURCE_PREFIX, "", $sourceName));
             $sources[$sourceShortName] = $sourceTarget;
         }
         return $sources;

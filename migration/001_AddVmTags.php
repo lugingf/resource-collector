@@ -2,6 +2,10 @@
 
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
+use RMS\ResourceCollector\Model\Tag;
+use RMS\ResourceCollector\Model\TagRule;
+use RMS\ResourceCollector\TagRules\Host2TagLinker;
+use RMS\ResourceCollector\TagRules\Rule2TagLinker;
 
 /**
  * Перенесено полностью из HostInfo
@@ -9,11 +13,6 @@ use Phinx\Migration\AbstractMigration;
  */
 class AddVmTags extends AbstractMigration
 {
-    private const TAG_TABLE = 'tag';
-    private const TAG_RULE_TABLE = 'tag_rule';
-    private const HOST2TAG_TABLE = 'host2tag';
-    private const RULE2TAG_TABLE = 'rule2tag';
-
     public function up()
     {
         $this->createTagTable();
@@ -29,11 +28,11 @@ class AddVmTags extends AbstractMigration
 
     protected function createTagTable()
     {
-        if ($this->hasTable(self::TAG_TABLE)) {
+        if ($this->hasTable(Tag::TABLE_NAME)) {
             return;
         }
         $table = $this->table(
-            self::TAG_TABLE,
+            Tag::TABLE_NAME,
             [
                 'id' => false,
                 'primary_key' => ['id'],
@@ -48,10 +47,10 @@ class AddVmTags extends AbstractMigration
 
     protected function createTagRuleTable()
     {
-        if ($this->hasTable(self::TAG_RULE_TABLE)) {
+        if ($this->hasTable(TagRule::TABLE_NAME)) {
             return;
         }
-        $this->table(self::TAG_RULE_TABLE)
+        $this->table(TagRule::TABLE_NAME)
             ->addColumn('name', 'char', ['length' => 255, 'null' => false, 'default' => ''])
             ->addColumn('type', 'char', ['length' => 255, 'null' => false, 'default' => ''])
             ->addColumn('body', 'text', ['limit' => MysqlAdapter::TEXT_LONG, 'null' => false, 'default' => ''])
@@ -63,10 +62,10 @@ class AddVmTags extends AbstractMigration
 
     private function createHost2TagTable()
     {
-        if ($this->hasTable(self::HOST2TAG_TABLE)) {
+        if ($this->hasTable(Host2TagLinker::TABLE)) {
             return;
         }
-        $this->table(self::HOST2TAG_TABLE)
+        $this->table(Host2TagLinker::TABLE)
             ->addColumn('host_name', 'char', ['length' => 255, 'null' => false])
             ->addColumn('tag_id', 'integer', ['length' => 11, 'null' => false])
             ->addColumn('rule_id', 'integer', ['limit' => 11, 'null' => false])
@@ -76,10 +75,10 @@ class AddVmTags extends AbstractMigration
 
     private function createRule2TagTable()
     {
-        if ($this->hasTable(self::RULE2TAG_TABLE)) {
+        if ($this->hasTable(Rule2TagLinker::TABLE)) {
             return;
         }
-        $this->table(self::RULE2TAG_TABLE)
+        $this->table(Rule2TagLinker::TABLE)
             ->addColumn('rule_id', 'integer', ['length' => 11, 'null' => false])
             ->addColumn('tag_id', 'integer', ['length' => 11, 'null' => false])
             ->addIndex(['rule_id', 'tag_id'], ['name' => 'ux_rule_tag', 'unique' => true])

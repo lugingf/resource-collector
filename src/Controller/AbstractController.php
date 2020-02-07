@@ -13,13 +13,7 @@ abstract class AbstractController
     abstract function customProcess(Request $request, Response $response, array $args): Response;
     abstract function getRequiredParameters(): array;
 
-    /**
-     * @param Request $request
-     * @param Response $response
-     * @param array $args
-     * @return Response
-     * @throws \Exception
-     */
+    /* @throws \Exception */
     public function process(Request $request, Response $response, array $args): Response
     {
         $this->checkRequiredParameters($request);
@@ -33,10 +27,7 @@ abstract class AbstractController
         return $request->getParsedBody() ?? [];
     }
 
-    /**
-     * @param Request $request
-     * @throws \Exception
-     */
+    /* @throws \Exception */
     protected function checkRequiredParameters(Request $request): void
     {
         $parameters = $this->getParameters($request);
@@ -47,12 +38,7 @@ abstract class AbstractController
         }
     }
 
-    /**
-     * @param string $ruleType
-     * @param string $ruleBody
-     * @return array
-     * @throws \Exception
-     */
+    /* @throws \Exception */
     protected function getHostNameList(string $ruleType, string $ruleBody): array
     {
         $rule = RuleStrategy::get($ruleType, $ruleBody);

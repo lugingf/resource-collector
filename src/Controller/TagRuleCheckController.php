@@ -22,12 +22,14 @@ class TagRuleCheckController extends AbstractController
         $this->logger = $logger;
     }
 
+    /* @throws \Exception */
     public function customProcess(Request $request, Response $responce, array $args): Response
     {
         $ruleData = $this->getParameters($request);
         return $responce->withJson($this->getInstancesList($ruleData));
     }
 
+    /* @throws \Exception */
     protected function getInstancesList(array $ruleData): array
     {
         $hosts = $this->getHostNameList($ruleData['ruleType'], $ruleData['ruleBody']);

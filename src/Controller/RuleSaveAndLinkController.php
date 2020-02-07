@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector\Controller;
 
-use Psr\Log\LoggerInterface;
 use RMS\ResourceCollector\TagRules\Host2TagLinker;
 use RMS\ResourceCollector\TagRules\Rule2TagLinker;
 use RMS\ResourceCollector\Model\Tag;
