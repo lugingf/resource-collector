@@ -42,6 +42,7 @@ class ResourceCollector
                 $itemsData = [];
                 $unitsData = [];
                 $rulesData = [];
+                $itemsToClean = [];
 
                 foreach ($resources['resources'] as $resource) {
                     $unitsData[] = [
@@ -59,8 +60,7 @@ class ResourceCollector
                             'properties' => json_encode((object)$resourceItem['properties'])
                         ];
                     }
-
-                    Item::where('unit_name', '=', $resource['name'])->delete();
+                    $itemsToClean[] = $resource['name'];
 
                     foreach ($resource["tags"] as $tag) {
                         $ruleName = implode("_", [$sourceName, "origin", $tag['tag'], $tag['value']]);
@@ -73,10 +73,9 @@ class ResourceCollector
                     }
                 }
 
-                // @todo тут надо попробовать все в одной транзакции делать + item'ы удалять там же
-                // Если мы сохраняем возможность обновить только по одному сурсу, то пока только так
                 Unit::where('source', '=', $sourceName)->delete();
                 Unit::insertOrIgnore($unitsData);
+                Item::whereIn('unit_name', $itemsToClean)->delete();
                 Item::insert($itemsData);
 
                 $this->saveTagRules($rulesData);
