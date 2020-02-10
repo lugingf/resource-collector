@@ -78,7 +78,6 @@ class ResourceCollector
                 Unit::insertOrIgnore($unitsData);
                 Item::whereIn('unit_name', $itemsToClean)->delete();
                 Item::insert($itemsData);
-                // select * from item LEFT JOIN unit ON item.`unit_name` = unit.`name` where unit.`name` is null;
                 Item::cleanUnused();
 
                 $this->saveTagRules($rulesData);
