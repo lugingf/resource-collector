@@ -16,7 +16,12 @@ return
                 'pass' => getenv('MYSQL_PASSWORD'),
                 'port' => getenv('MYSQL_PORT'),
                 'charset' => 'utf8',
-            ]
+            ],
+            'testing' => [
+                'adapter' => 'sqlite',
+                'name' => './db',
+                'charset' => 'utf8',
+            ],
         ],
         'version_order' => 'creation'
     ];

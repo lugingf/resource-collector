@@ -127,7 +127,7 @@ class Application extends \DI\Bridge\Slim\App
         $routeGroup->add($this->getContainer()->get(OpenTracingMiddleware::class));
     }
 
-    private function initDb(): void
+    protected function initDb(): void
     {
         $capsule = new Manager();
 

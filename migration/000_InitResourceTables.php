@@ -25,7 +25,7 @@ class InitResourceTables extends AbstractMigration
             ->addColumn('type', 'string', ['length' => 255, 'null' => false])
             ->addColumn('name', 'string', ['length' => 255, 'null' => false])
             ->addColumn('properties', 'text')
-            ->addIndex('name', ['name' => 'ux_name', 'unique' => true])
+            ->addIndex('name', ['name' => 'ux_unit_name', 'unique' => true])
             ->addIndex('source', ['name' => 'ix_source'])
             ->create();
     }

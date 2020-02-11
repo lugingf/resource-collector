@@ -56,7 +56,7 @@ class AddVmTags extends AbstractMigration
             ->addColumn('body', 'text', ['limit' => MysqlAdapter::TEXT_LONG, 'null' => false, 'default' => ''])
             ->addColumn('priority', 'integer', ['limit' => 3, 'null' => false])
             ->addColumn('comment', 'string', ['length' => 255, 'null' => true, 'default' => ''])
-            ->addIndex(['name'], ['name' => 'ux_name', 'unique' => true])
+            ->addIndex(['name'], ['name' => 'ux_rule_name', 'unique' => true])
             ->create();
     }
 

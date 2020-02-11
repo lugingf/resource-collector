@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace RMT\ResourceCollector;
 
 use DI\ContainerBuilder;
+use Illuminate\Database\Capsule\Manager;
 use RMS\ResourceCollector\Application;
 
 class TestApp extends Application
@@ -18,5 +19,21 @@ class TestApp extends Application
     {
         parent::configureContainer($builder);
         $builder->addDefinitions(__DIR__ . '/config/di.php');
+    }
+
+    protected function initDb(): void
+    {
+        $capsule = new Manager();
+        $capsule->addConnection(
+            [
+                'driver'    => 'sqlite',
+                'database'  => __DIR__ . '/../db.sqlite3',
+                'charset'   => 'utf8',
+                'collation' => 'utf8_unicode_ci',
+                'prefix'    => '',
+            ]
+        );
+        $capsule->setAsGlobal();
+        $capsule->bootEloquent();
     }
 }

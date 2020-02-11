@@ -1,6 +1,10 @@
 <?php
 namespace RMT\ResourceCollector;
 
+use Illuminate\Database\Capsule\Manager as DB;
+use RMS\ResourceCollector\Model\Tag;
+use RMS\ResourceCollector\Model\TagRule;
+use RMS\ResourceCollector\Model\Unit;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Slim\Http\Environment;
@@ -61,5 +65,26 @@ abstract class SlimBaseTest extends Test
 
         // Return the response
         return $response;
+    }
+
+    protected function initApp()
+    {
+        $dotenv = \Dotenv\Dotenv::create(__DIR__ . '/config', '.env_test');
+        $dotenv->safeLoad();
+        $this->app = new TestApp();
+        $this->container = $this->app->getContainer();
+    }
+
+    protected function migrateDb()
+    {
+        exec('vendor/bin/phinx migrate -e testing -c '. __DIR__ . '/../phinx.php', $output, $returnCode);
+        if ($returnCode !== 0) {
+            throw new \Exception('migration was failed: ' . implode("\n", $output));
+        }
+    }
+
+    protected function cleanTables()
+    {
+        DB::statement("delete from " . Tag::TABLE_NAME);
     }
 }
