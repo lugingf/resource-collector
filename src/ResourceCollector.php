@@ -10,6 +10,7 @@ use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
 use RMS\ResourceCollector\Model\Unit;
 use RMS\ResourceCollector\TagRules\Rule2TagLinker;
+use TutuRu\Metrics\StatsdExporterClientInterface;
 
 class ResourceCollector
 {
@@ -17,12 +18,19 @@ class ResourceCollector
     private $dataProviderClient;
     private $raven;
     private $logger;
+    private $statsd;
 
-    public function __construct(DataProviderClient $dataProviderClient, \Raven_Client $raven, LoggerInterface $logger)
-    {
+
+    public function __construct(
+        DataProviderClient $dataProviderClient,
+        \Raven_Client $raven,
+        LoggerInterface $logger,
+        StatsdExporterClientInterface $statsd
+    ) {
         $this->dataProviderClient = $dataProviderClient;
         $this->raven = $raven;
         $this->logger = $logger;
+        $this->statsd = $statsd;
     }
 
     public function collectResources(?array $sourceNames = null)
@@ -35,7 +43,15 @@ class ResourceCollector
 
         try {
             foreach ($sources as $sourceName => $sourceTarget) {
+                $startTime = microtime(true);
+
                 $this->getSourceData($sourceName, $sourceTarget);
+
+                $this->statsd->timing(
+                    'resource_collector_collecting_diration',
+                    microtime(true) - $startTime,
+                    ["data_source" => $sourceName]
+                );
             }
         } catch (\Throwable $e) {
             $this->logger->error('Caugth: ' . $e);
