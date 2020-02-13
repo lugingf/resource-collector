@@ -1,26 +1,30 @@
 <?php
 declare(strict_types=1);
 
-
-namespace RMS\ResourceCollector\TagRules\Strategy;
+namespace RMS\ResourceCollector\TagRules\Strategies;
 
 use RMS\ResourceCollector\Model\Unit;
 
-class Origin extends AbstractStrategy
+class RegexStrategy extends AbstractStrategy
 {
-    public function getHosts(): array
+    public function getUnits(): array
     {
         $result = [];
         $instances = Unit::all();
-        $ruleInstancesList = json_decode($this->ruleBody);
+
         /** @var Unit $instance */
         foreach ($instances as $instance) {
             $instanceName = $instance->getName();
-            if (in_array($instanceName, $ruleInstancesList)) {
+            if (preg_match($this->getPreparedRuleBody(), $instanceName)) {
                 $result[] = $instanceName;
             }
         }
 
         return $result;
+    }
+
+    private function getPreparedRuleBody()
+    {
+        return "/" . $this->ruleBody . "/";
     }
 }

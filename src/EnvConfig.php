@@ -27,4 +27,15 @@ class EnvConfig
 
         return $resultValues;
     }
+
+    public static function getAllSources(): array
+    {
+        $sources = [];
+        $configSources = EnvConfig::getValues(EnvConfig::RESOURCE_SOURCE_PREFIX);
+        foreach ($configSources as $sourceName => $sourceTarget) {
+            $sourceShortName = strtolower(str_replace(EnvConfig::RESOURCE_SOURCE_PREFIX, "", $sourceName));
+            $sources[$sourceShortName] = $sourceTarget;
+        }
+        return $sources;
+    }
 }

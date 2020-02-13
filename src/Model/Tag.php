@@ -21,17 +21,17 @@ class Tag extends Model
 
     public function getValue(): string
     {
-        return $this->{self::FIELD_VALUE};
+        return $this->attributes[self::FIELD_VALUE];
     }
 
     public function getName(): string
     {
-        return $this->{self::FIELD_NAME};
+        return $this->attributes[self::FIELD_NAME];
     }
 
     public function getId(): int
     {
-        return $this->{self::FIELD_ID};
+        return $this->attributes[self::FIELD_ID];
     }
 
     public static function getTagNameListByNamePart(string $namePart): array

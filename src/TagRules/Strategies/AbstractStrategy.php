@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 
-namespace RMS\ResourceCollector\TagRules\Strategy;
+namespace RMS\ResourceCollector\TagRules\Strategies;
 
 abstract class AbstractStrategy
 {
@@ -16,5 +16,5 @@ abstract class AbstractStrategy
         $this->ruleBody = $ruleBody;
     }
 
-    abstract public function getHosts(): array;
+    abstract public function getUnits(): array;
 }

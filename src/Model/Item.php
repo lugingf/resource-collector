@@ -26,16 +26,4 @@ class Item extends Model
     public $timestamps = false;
 
     protected $fillable = [self::FIELD_UNIT_NAME, self::FIELD_TYPE, self::FIELD_AMOUNT, self::FIELD_PROPERTIES];
-
-    public static function cleanUnused(): int
-    {
-        // select * from item LEFT JOIN unit ON item.`unit_name` = unit.`name` where unit.`name` is null;
-        return DB::table(static::TABLE_NAME)
-            ->leftJoin(
-                Unit::TABLE_NAME,
-                static::TABLE_NAME . "." . static::FIELD_UNIT_NAME,
-                "=",
-                Unit::TABLE_NAME . "." . Unit::FIELD_NAME
-            )->whereNull(Unit::TABLE_NAME . "." . Unit::FIELD_NAME)->delete();
-    }
 }

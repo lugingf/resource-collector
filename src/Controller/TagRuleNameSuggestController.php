@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector\Controller;
 
-
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
 use Slim\Http\Request;
@@ -17,12 +16,23 @@ class TagRuleNameSuggestController extends AbstractController
     {
         $params = $this->getParameters($request);
         $result = [];
-        $tags = TagRule::getRuleNameListByNamePart($params[self::PARAM_RULE_NAME_PART]);
+        $tags = $this->getRuleNameListByNamePart($params[self::PARAM_RULE_NAME_PART]);
         /* @var Tag $tag*/
         foreach ($tags as $tag) {
             $result['ruleNames'][] = ['name' => $tag];
         }
         return $responce->withJson($result);
+    }
+
+
+    private function getRuleNameListByNamePart(string $namePart): array
+    {
+        $rules = [];
+        $rulesData = TagRule::where(TagRule::FIELD_NAME, "LIKE", "%$namePart%")->cursor();
+        foreach ($rulesData as $rule) {
+            $rules[] = $rule->{TagRule::FIELD_NAME};
+        }
+        return $rules;
     }
 
     function getRequiredParameters(): array

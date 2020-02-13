@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector\Controller;
 
-use RMS\ResourceCollector\TagRules\Host2TagLinker;
+use RMS\ResourceCollector\TagRules\Unit2TagLinker;
 use RMS\ResourceCollector\TagRules\Rule2TagLinker;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
@@ -50,8 +50,8 @@ class RuleSaveAndLinkController extends AbstractController
 
         // @todo в di
         (new Rule2TagLinker())->linkExclusively($tagRule, $tag);
-        $instancesList = $this->getHostNameList($ruleType, $ruleBody);
-        $skippedInstances = (new Host2TagLinker())->linkHosts($instancesList, $tagRule, $tag);
+        $instancesList = $this->getUnitNameList($ruleType, $ruleBody);
+        $skippedInstances = (new Unit2TagLinker())->linkUnits($instancesList, $tagRule, $tag);
 
         return $response->withJson($skippedInstances);
     }

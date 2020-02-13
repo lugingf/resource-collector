@@ -70,7 +70,7 @@ class Application extends \DI\Bridge\Slim\App
         $this->get("/resources", ResourceCollectingController::class . ':collect');
         $this->get("/rule", GetRuleController::class . ':process');
         $this->post("/rule", RuleSaveAndLinkController::class . ":process");
-        $this->get("/rule_hosts", TagRuleCheckController::class . ":process");
+        $this->get("/rule_units", TagRuleCheckController::class . ":process");
         $this->get("/tag_suggest", TagNameSuggestController::class . ":process");
         $this->get("/tag_value_suggest", TagValueSuggestController::class . ":process");
         $this->get("/rule_suggest", TagRuleNameSuggestController::class . ":process");

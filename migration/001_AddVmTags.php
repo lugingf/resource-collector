@@ -4,7 +4,7 @@ use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Migration\AbstractMigration;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
-use RMS\ResourceCollector\TagRules\Host2TagLinker;
+use RMS\ResourceCollector\TagRules\Unit2TagLinker;
 use RMS\ResourceCollector\TagRules\Rule2TagLinker;
 
 /**
@@ -17,7 +17,7 @@ class AddVmTags extends AbstractMigration
     {
         $this->createTagTable();
         $this->createTagRuleTable();
-        $this->createHost2TagTable();
+        $this->createUnit2TagTable();
         $this->createRule2TagTable();
     }
 
@@ -60,16 +60,16 @@ class AddVmTags extends AbstractMigration
             ->create();
     }
 
-    private function createHost2TagTable()
+    private function createUnit2TagTable()
     {
-        if ($this->hasTable(Host2TagLinker::TABLE)) {
+        if ($this->hasTable(Unit2TagLinker::TABLE)) {
             return;
         }
-        $this->table(Host2TagLinker::TABLE)
-            ->addColumn('host_name', 'char', ['length' => 255, 'null' => false])
+        $this->table(Unit2TagLinker::TABLE)
+            ->addColumn('unit_name', 'char', ['length' => 255, 'null' => false])
             ->addColumn('tag_id', 'integer', ['length' => 11, 'null' => false])
             ->addColumn('rule_id', 'integer', ['limit' => 11, 'null' => false])
-            ->addIndex(['host_name'], ['name' => 'ix_host_name'])
+            ->addIndex(['unit_name'], ['name' => 'ix_unit_name'])
             ->create();
     }
 

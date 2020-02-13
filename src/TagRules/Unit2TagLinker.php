@@ -7,9 +7,9 @@ use Illuminate\Database\Capsule\Manager as DB;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
 
-class Host2TagLinker
+class Unit2TagLinker
 {
-    public const TABLE = 'host2tag';
+    public const TABLE = 'unit2tag';
 
     private $table = "";
 
@@ -28,30 +28,30 @@ class Host2TagLinker
 
     /** Пока линкаем по одному
      */
-    public function linkHost(string $hostName, TagRule $rule, Tag $tag): void
+    public function linkUnit(string $unitName, TagRule $rule, Tag $tag): void
     {
         DB::insert(
-            'INSERT IGNORE INTO ' . $this->getTable() . ' (host_name, tag_id, rule_id) VALUES (?, ?, ?)',
+            'INSERT IGNORE INTO ' . $this->getTable() . ' (unit_name, tag_id, rule_id) VALUES (?, ?, ?)',
             [
-                $hostName,
+                $unitName,
                 $tag->getId(),
                 $rule->getId()
             ]
         );
     }
 
-    public function getHostTags(string $hostName): array
+    public function getUnitTags(string $unitName): array
     {
         $result = DB::select(
-            'SELECT * FROM ' . $this->getTable() . ' WHERE host_name = ?',
-            [$hostName]
+            'SELECT * FROM ' . $this->getTable() . ' WHERE unit_name = ?',
+            [$unitName]
         );
         return $result;
     }
 
-    public function getHostLinkByTagId(string $hostName, int $tagId): ?\stdClass
+    public function getUnitLinkByTagId(string $unitName, int $tagId): ?\stdClass
     {
-        $tagsData = $this->getHostTags($hostName);
+        $tagsData = $this->getUnitTags($unitName);
         foreach ($tagsData as $tagData) {
             if ($tagData->tag_id == $tagId) {
                 return $tagData;
@@ -61,9 +61,9 @@ class Host2TagLinker
         return null;
     }
 
-    public function getHostTagByName(string $hostName, string $tagName): ?Tag
+    public function getUnitTagByName(string $unitName, string $tagName): ?Tag
     {
-        $tagsData = $this->getHostTags($hostName);
+        $tagsData = $this->getUnitTags($unitName);
         foreach ($tagsData as $tagData) {
             /* @var Tag $tag */
             $tag = Tag::where('id', "=", $tagData->tag_id)->first();
@@ -77,11 +77,11 @@ class Host2TagLinker
 
     public function getOwnerTagValue(string $vmName): ?string
     {
-        $tag = $this->getHostTagByName($vmName, 'owner');
+        $tag = $this->getUnitTagByName($vmName, 'owner');
         return is_null($tag) ? null : $tag->getValue();
     }
 
-    public function getHostLinksByTagId(int $tagId): array
+    public function getUnitLinksByTagId(int $tagId): array
     {
         $links = DB::select(
             'SELECT * FROM ' . $this->getTable() . ' WHERE tag_id = ?',
@@ -90,34 +90,34 @@ class Host2TagLinker
         return $links;
     }
 
-    public function replaceLink(int $oldLinkId, string $hostName, TagRule $rule, Tag $tag): void
+    public function replaceLink(int $oldLinkId, string $unitName, TagRule $rule, Tag $tag): void
     {
         DB::delete('DELETE FROM ' . $this->getTable() . ' WHERE id = ?', [$oldLinkId]);
-        $this->linkHost($hostName, $rule, $tag);
+        $this->linkUnit($unitName, $rule, $tag);
     }
 
-    public function linkHosts(array $hostList, TagRule $tagRule, Tag $tag): array
+    public function linkUnits(array $unitList, TagRule $tagRule, Tag $tag): array
     {
         $skippedInstances = [];
-        foreach ($hostList as $hostName) {
-            $hostTag = $this->getHostTagByName($hostName, $tag->getName());
+        foreach ($unitList as $unitName) {
+            $unitTag = $this->getUnitTagByName($unitName, $tag->getName());
             // Если тега с таким именем нет - линкуем
-            if (is_null($hostTag)) {
-                $this->linkHost($hostName, $tagRule, $tag);
+            if (is_null($unitTag)) {
+                $this->linkUnit($unitName, $tagRule, $tag);
                 continue;
             }
 
-            $hostLinkData = $this->getHostLinkByTagId($hostName, $hostTag->getId());
+            $unitLinkData = $this->getUnitLinkByTagId($unitName, $unitTag->getId());
             /* @var TagRule $savedRule */
             // @todo при реализации удалений правил - учесть возврат null
-            $savedRule = TagRule::where('id', "=", $hostLinkData->rule_id)->first();
+            $savedRule = TagRule::where('id', "=", $unitLinkData->rule_id)->first();
             $savedRulePriority = $savedRule->getPriority();
             if ($savedRulePriority >= $tagRule->getPriority()) {
                 // тег с таким именем есть, но сохранен с бОльшим приоритетом, не линкаем, сообщим об этом
                 $skippedInstances[] = [
-                    'instanceName' => $hostName,
-                    'tagName' => $hostTag->getName(),
-                    'tagValue' => $hostTag->getValue(),
+                    'instanceName' => $unitName,
+                    'tagName' => $unitTag->getName(),
+                    'tagValue' => $unitTag->getValue(),
                     'rulePriority' => $savedRulePriority,
                     'ruleName' => $savedRule->getName(),
                     'ruleComment' => $savedRule->getComment()
@@ -126,7 +126,7 @@ class Host2TagLinker
             }
 
             // тут, очевидно, приоритет был меньший, чем сейчас - заменяем линк
-            $this->replaceLink($hostLinkData->id, $hostName, $tagRule, $tag);
+            $this->replaceLink($unitLinkData->id, $unitName, $tagRule, $tag);
         }
         return $skippedInstances;
     }

@@ -23,41 +23,31 @@ class TagRule extends Model
 
     public function getId(): ?int
     {
-        return $this->{self::FIELD_ID};
+        return $this->attributes[self::FIELD_ID];
     }
 
     public function getName(): ?string
     {
-        return $this->{self::FIELD_NAME};
+        return $this->attributes[self::FIELD_NAME];
     }
 
     public function getBody(): string
     {
-        return $this->{self::FIELD_BODY};
+        return $this->attributes[self::FIELD_BODY];
     }
 
     public function getComment(): string
     {
-        return $this->{self::FIELD_COMMENT} ?? '';
+        return $this->attributes[self::FIELD_COMMENT] ?? '';
     }
 
     public function getType(): string
     {
-        return $this->{self::FIELD_TYPE};
+        return $this->attributes[self::FIELD_TYPE];
     }
 
     public function getPriority(): int
     {
-        return intval($this->{self::FIELD_PRIORITY});
-    }
-
-    public static function getRuleNameListByNamePart(string $namePart): array
-    {
-        $rules = [];
-        $rulesData = TagRule::where(self::FIELD_NAME, "LIKE", "%$namePart%")->groupBy('name')->cursor();
-        foreach ($rulesData as $rule) {
-            $rules[] = $rule->{self::FIELD_NAME};
-        }
-        return $rules;
+        return intval($this->attributes[self::FIELD_PRIORITY]);
     }
 }

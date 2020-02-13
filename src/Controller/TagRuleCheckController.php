@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace RMS\ResourceCollector\Controller;
 
 use Psr\Log\LoggerInterface;
-use RMS\ResourceCollector\TagRules\Host2TagLinker;
+use RMS\ResourceCollector\TagRules\Unit2TagLinker;
 use RMS\ResourceCollector\Model\Tag;
 use RMS\ResourceCollector\Model\TagRule;
 use Slim\Http\Request;
@@ -32,12 +32,12 @@ class TagRuleCheckController extends AbstractController
     /* @throws \Exception */
     protected function getInstancesList(array $ruleData): array
     {
-        $hosts = $this->getHostNameList($ruleData['ruleType'], $ruleData['ruleBody']);
+        $units = $this->getUnitNameList($ruleData['ruleType'], $ruleData['ruleBody']);
         $result = [];
-        foreach ($hosts as $hostName) {
-            $tags = $this->getInstanceTags($hostName);
+        foreach ($units as $unitName) {
+            $tags = $this->getInstanceTags($unitName);
             $result[] = [
-                'instanceName' => $hostName,
+                'instanceName' => $unitName,
                 'tags' => $tags
             ];
         }
@@ -48,7 +48,7 @@ class TagRuleCheckController extends AbstractController
     private function getInstanceTags(string $instanceName): array
     {
         $result = [];
-        $tagLinks = (new Host2TagLinker())->getHostTags($instanceName);
+        $tagLinks = (new Unit2TagLinker())->getUnitTags($instanceName);
         foreach ($tagLinks as $link) {
             $tagId = $link->tag_id;
             /* @var Tag $tag */

@@ -26,6 +26,6 @@ class Unit extends Model
 
     public function getName(): string
     {
-        return $this->{self::FIELD_NAME};
+        return $this->attributes[self::FIELD_NAME];
     }
 }

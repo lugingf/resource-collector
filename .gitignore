@@ -3,3 +3,4 @@
 /.ssh
 .env
 .phpunit.result.cache
+db.sqlite3

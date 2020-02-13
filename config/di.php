@@ -26,6 +26,7 @@ use RMS\ResourceCollector\Controller\TagNameSuggestController;
 use RMS\ResourceCollector\Controller\TagRuleCheckController;
 use RMS\ResourceCollector\Controller\TagRuleNameSuggestController;
 use RMS\ResourceCollector\Controller\TagValueSuggestController;
+use RMS\ResourceCollector\DataProviderClient;
 use RMS\ResourceCollector\Middleware\OpenApiUriFormatter;
 use RMS\ResourceCollector\Middleware\JsonFormatter;
 use RMS\ResourceCollector\Middleware\SentryMiddleware;
@@ -141,6 +142,7 @@ $definitions = [
     SlowRequestLogMiddleware::class => DI\autowire()
         ->constructorParameter('maxAllowedTimeSec', floatval(getenv('DEBUG_SLOW_REQUEST_TIME_MS') ?? 10)),
 
+    DataProviderClient::class => DI\autowire(),
     ResourceCollector::class => DI\autowire(),
     ResourceCollectingController::class => DI\autowire(),
     GetRuleController::class => DI\autowire(),

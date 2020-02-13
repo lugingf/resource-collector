@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace RMS\ResourceCollector\TagRules;
 
-use RMS\ResourceCollector\TagRules\Strategy\AbstractStrategy;
-use RMS\ResourceCollector\TagRules\Strategy\Origin;
-use RMS\ResourceCollector\TagRules\Strategy\Regex;
+use RMS\ResourceCollector\TagRules\Strategies\AbstractStrategy;
+use RMS\ResourceCollector\TagRules\Strategies\OriginStrategy;
+use RMS\ResourceCollector\TagRules\Strategies\RegexStrategy;
 
 class RuleStrategy
 {
@@ -19,9 +19,9 @@ class RuleStrategy
     {
         switch ($type) {
             case 'regex':
-                return new Regex($ruleBody);
+                return new RegexStrategy($ruleBody);
             case 'origin':
-                return new Origin($ruleBody);
+                return new OriginStrategy($ruleBody);
             default:
                 throw new \Exception('Unknown rule type was provided');
         }

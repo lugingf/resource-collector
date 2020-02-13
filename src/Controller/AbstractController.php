@@ -39,10 +39,10 @@ abstract class AbstractController
     }
 
     /* @throws \Exception */
-    protected function getHostNameList(string $ruleType, string $ruleBody): array
+    protected function getUnitNameList(string $ruleType, string $ruleBody): array
     {
         $rule = RuleStrategy::get($ruleType, $ruleBody);
-        $hosts = $rule->getHosts();
-        return $hosts;
+        $units = $rule->getUnits();
+        return $units;
     }
 }

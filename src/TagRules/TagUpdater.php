@@ -14,14 +14,14 @@ use RMS\ResourceCollector\Model\TagRule;
  * @package RMS\ResourceCollector\TagRules\CronHandlers
  *
  * Выполняется метод process(), по расписанию
- * При каждом выполнении полностью заново пересоздает структуру связки host - tag
+ * При каждом выполнении полностью заново пересоздает структуру связки unit - tag
  * Все правила применяются в порядке приоритета от низшего до наивысшего
  *
  */
 class TagUpdater
 {
-    const TEMP_TABLE = "host2tag_temporary";
-    const TEMP_TABLE_2 = "host2tag_temporary_2";
+    const TEMP_TABLE = "unit2tag_temporary";
+    const TEMP_TABLE_2 = "unit2tag_temporary_2";
 
     private $logger;
     private $raven;
@@ -52,21 +52,21 @@ class TagUpdater
             );
 
             DB::statement("DROP TABLE IF EXISTS " . static::TEMP_TABLE);
-            DB::statement("CREATE TABLE " . static::TEMP_TABLE . " LIKE " . Host2TagLinker::TABLE);
+            DB::statement("CREATE TABLE " . static::TEMP_TABLE . " LIKE " . Unit2TagLinker::TABLE);
             foreach ($rules as $rule) {
                 $ruleStrategy = RuleStrategy::get($rule->getType(), $rule->getBody());
-                $hosts = $ruleStrategy->getHosts();
+                $units = $ruleStrategy->getUnits();
                 $this->logger->info(
-                    "Applying " . $rule->getName() . " (priority ". $rule->getPriority() . ") on " . count($hosts) . " hosts"
+                    "Applying " . $rule->getName() . " (priority ". $rule->getPriority() . ") on " . count($units) . " units"
                 );
                 /* @var Tag $tag */
                 $tag = (new Rule2TagLinker())->getRuleTag($rule);
-                $linker = new Host2TagLinker();
+                $linker = new Unit2TagLinker();
                 $linker->setTable(static::TEMP_TABLE);
-                $skippedHosts = $linker->linkHosts($hosts, $rule, $tag);
+                $skippedUnits = $linker->linkUnits($units, $rule, $tag);
                 $this->logger->info(
-                    "Finished apply " . $rule->getName() . ". " . count($skippedHosts) . " skipped: \n"
-                    . implode("\n", array_map(function ($a){return implode(" ", $a);}, $skippedHosts))
+                    "Finished apply " . $rule->getName() . ". " . count($skippedUnits) . " skipped: \n"
+                    . implode("\n", array_map(function ($a){return implode(" ", $a);}, $skippedUnits))
                 );
             }
             $this->replaceTables();
@@ -81,8 +81,8 @@ class TagUpdater
     {
         DB::statement(
             "RENAME TABLE "
-            . Host2TagLinker::TABLE . " TO " . static::TEMP_TABLE_2 . ", "
-            . static::TEMP_TABLE . " TO " . Host2TagLinker::TABLE . ";"
+            . Unit2TagLinker::TABLE . " TO " . static::TEMP_TABLE_2 . ", "
+            . static::TEMP_TABLE . " TO " . Unit2TagLinker::TABLE . ";"
         );
         DB::statement("DROP TABLE " . static::TEMP_TABLE_2 . ";");
     }
